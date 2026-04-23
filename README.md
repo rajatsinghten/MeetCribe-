@@ -1,70 +1,126 @@
-# TwinMind Live Suggestions
+# TwinMind Live Meeting Copilot
 
-TwinMind is a two-part app for live meeting assistance:
+TwinMind is a real-time meeting assistant with three live workflows: transcription, context-aware suggestions, and streaming chat. It uses a React + Vite frontend and a FastAPI backend connected to Groq models.
 
-- `client/`: React + Vite frontend for microphone capture, transcript display, live suggestions, chat, export, and session settings.
-- `backend/`: FastAPI service for Groq transcription, live suggestion generation, and streaming chat responses.
+## How to Use
 
-## Assignment Coverage
+1. Open the app after completing setup (setup section is at the end of this file).
+2. Add your Groq API key from the `Settings` modal.
+3. Optionally add meeting memory or prep notes in `Settings`.
+4. Start recording from `Mic & Transcript`.
+5. Let transcript chunks accumulate (captured in ~30-second segments).
+6. Watch `Live Suggestion` update automatically, or click `Refresh now` for a manual refresh.
+7. Click any suggestion card to stream a deeper response into `Chat`.
+8. Ask direct questions in chat. Responses use current session context.
+9. Use `Export` to download transcript, suggestion batches, chat history, and session settings (without the API key).
 
-Implemented in this repo:
+## Technical Implementation
 
-- Mic start/stop with transcript chunking every ~30 seconds
-- Auto-scrolling transcript panel
-- Live suggestions that refresh automatically as new transcript chunks arrive
-- Manual refresh that flushes the current audio segment, then refreshes suggestions
-- Exactly 3 suggestion cards per batch, with older batches preserved below newer ones
-- Click-to-expand suggestions into the chat panel
-- Direct freeform chat in the same session
-- Export of transcript, suggestion batches, and chat history with timestamps as JSON
-- Session settings for:
-  - Groq API key
-  - optional meeting memory / prep notes
-  - live suggestion prompt
-  - detailed answer prompt
-  - chat prompt
-  - context windows for suggestions, clicked suggestions, and direct chat
-- Silence handling that rolls consecutive silent windows into one visible streak and triggers occasional silence-aware suggestions instead of spamming empty batches
-- Recursive suggestion context using recent prior batches so the assistant can continue unresolved threads instead of resetting every refresh
+### Architecture
 
-## Models
+- Frontend: React + Vite single-page app in `client/`
+- Backend: FastAPI app in `backend/`
+- API surface:
+  - `POST /api/transcribe`
+  - `POST /api/suggestions`
+  - `POST /api/chat` (streaming)
 
-The backend now uses the assignment-required Groq models:
+### Frontend Pipeline
 
-- Transcription: `whisper-large-v3`
-- Live suggestions: `openai/gpt-oss-120b`
-- Detailed answers and chat: `openai/gpt-oss-120b`
+1. Audio capture and chunking
+- `TranscriptPanel` uses `MediaRecorder` with a rolling segment strategy.
+- Each segment runs for ~30 seconds, then stops, transcribes, and immediately starts a new segment.
+- Manual refresh calls `flushCurrentSegment()` so the current audio segment is sent immediately.
 
-I verified the current Groq model IDs from Groq Docs:
+2. Transcript state
+- `App.jsx` stores transcript entries with timestamps.
+- `fullTranscript` is used for chat and suggestion context.
+- `spokenTranscript` excludes synthetic silence entries for cleaner suggestion triggers.
 
-- GPT-OSS 120B: https://console.groq.com/docs/model/openai/gpt-oss-120b
-- Supported models list: https://console.groq.com/docs/models
+3. Suggestions lifecycle
+- `LiveSuggestionsPanel` listens to refresh tokens from `App.jsx`.
+- Refreshes are triggered by:
+  - new transcript chunks (`auto`)
+  - manual refresh button (`manual`)
+  - selected silence checkpoints (`silence`)
+- Duplicate requests are prevented with in-flight and completed request keys.
 
-## Repository Structure
+4. Chat lifecycle
+- `ChatPanel` keeps one continuous in-session thread.
+- Clicking a suggestion sends it in `suggestion` mode (detail prompt path).
+- Freeform input sends in `chat` mode.
+- Responses are streamed token-by-token from backend SSE.
 
-```text
-TwinMind/
-  backend/
-    main.py
-    requirements.txt
-    routers/
-    services/
-    models/
-    prompts/
-  client/
-    src/
-    package.json
-README.md
-```
+### Added Feature: Silence Detection
 
-## Prerequisites
+Silence detection is handled as first-class behavior, not an error case.
+
+- In `TranscriptPanel`, when a transcribed chunk returns empty text, a silence streak counter increments.
+- `onSilencePeriod` reports:
+  - `streakCount`
+  - cumulative silent seconds (`streakCount * 30`)
+- In `App.jsx`, consecutive silence windows are merged into one evolving transcript entry instead of creating noisy repeated lines.
+- Suggestion refresh is rate-limited for silence:
+  - trigger on first silence window
+  - then trigger every third silence window
+- This preserves context and avoids flooding the suggestions column when no one is speaking.
+
+### Added Feature: Recursive Memory
+
+Recursive memory is implemented as an iterative context loop across suggestion generations.
+
+- Frontend collects suggestion memory from recent batches:
+  - latest 3 batches
+  - up to 9 compact suggestion strings
+- Backend receives this as `previous_suggestions` in `SuggestionRequest`.
+- Backend prompt construction injects:
+  - latest transcript slice
+  - latest transcript chunk
+  - meeting memory
+  - previous suggestions
+  - silence streak count
+- Prompt rules explicitly tell the model to continue unresolved threads and avoid repetition.
+
+This creates a recursive memory effect where each new batch can build on earlier suggestions instead of resetting each refresh.
+
+### Backend Flow
+
+1. `POST /api/transcribe`
+- Accepts multipart audio file.
+- Sends to Groq transcription API.
+- Returns `{ "text": "..." }`.
+- Gracefully handles undecodable chunks by returning empty text.
+
+2. `POST /api/suggestions`
+- Applies transcript context window trimming server-side.
+- Builds a structured user message with optional blocks.
+- Runs up to three generation attempts with stricter fallback behavior if parsing fails.
+- Enforces exactly 3 suggestions via schema validation.
+
+3. `POST /api/chat`
+- Chooses prompt template by mode (`chat` or `suggestion`).
+- Injects transcript and optional meeting memory.
+- Appends prior chat history and current user message.
+- Streams model output as `text/event-stream`.
+
+### Prompt and Model Configuration
+
+- Transcription model: `whisper-large-v3`
+- Suggestions model: `openai/gpt-oss-120b`
+- Chat/detail model: `openai/gpt-oss-120b`
+
+Prompt templates are centralized in `backend/prompts/defaults.py` and are overridable from session settings.
+
+## Setup Instructions
+
+### Prerequisites
 
 - Python 3.9+
 - Node.js 18+
 - npm 9+
-- A Groq API key
+- Groq API key
 
-## Backend Setup
+### Backend Setup
 
 ```bash
 cd backend
@@ -75,9 +131,9 @@ cd ..
 backend/.venv/bin/uvicorn backend.main:app --reload --port 8000
 ```
 
-The backend runs at `http://127.0.0.1:8000`.
+Backend URL: `http://127.0.0.1:8000`
 
-## Frontend Setup
+### Frontend Setup
 
 ```bash
 cd client
@@ -85,57 +141,6 @@ npm install
 npm run dev
 ```
 
-The Vite dev server runs at `http://127.0.0.1:5173` and proxies `/api/*` to the backend.
+Frontend URL: `http://127.0.0.1:5173`
 
-## Running the App
-
-1. Start backend and frontend in separate terminals.
-2. Open the frontend URL shown by Vite.
-3. Open `Settings` and paste your Groq API key.
-4. Optionally tune prompts or context windows.
-5. Start microphone capture from the transcript panel.
-6. Wait for transcript chunks and live suggestion batches.
-7. Click a suggestion to stream a detailed answer in chat.
-8. Use `Export` to download the full session JSON.
-
-## API Endpoints
-
-- `POST /api/transcribe`
-  - Accepts audio multipart form data and returns transcript text.
-- `POST /api/suggestions`
-  - Accepts transcript context and returns exactly 3 suggestions.
-- `POST /api/chat`
-  - Accepts transcript context plus chat history and returns a streaming response.
-
-## Prompt Strategy
-
-- Live suggestions use a strict JSON prompt and recent transcript window so each refresh produces 3 actionable cards.
-- Optional meeting memory is included only when the user provided it for the current session.
-- Clicked suggestions use a separate prompt tuned for deeper, meeting-ready expansions.
-- Direct chat uses a broader assistant prompt with the longer transcript window.
-- Prior suggestion batches are fed back into later suggestion requests so the system can revisit unresolved items without blindly repeating itself.
-- Prompt and context settings are editable in-session so evaluators can inspect and tune behavior quickly.
-
-## Tradeoffs
-
-- Session state lives entirely in-browser. Reloading clears the active session, which matches the assignment.
-- Suggestions refresh after transcript updates instead of on a separate timer, so the middle column stays aligned with fresh audio context.
-- Consecutive silence is represented as one evolving transcript event, with suggestion refreshes on the first silent interval and then periodically for longer pauses.
-- Export is client-side JSON download for simplicity and transparency.
-
-## Verification
-
-Validated locally with:
-
-```bash
-cd client && npm run lint
-cd client && npm run build
-python3 -m py_compile backend/main.py backend/routers/*.py backend/models/*.py backend/prompts/*.py backend/services/*.py
-```
-
-## Known Non-Code Deliverables
-
-Still required outside the repo:
-
-- A public deployed URL
-- A public or shared GitHub repo URL for submission
+Vite proxy forwards `/api/*` requests to the backend.
