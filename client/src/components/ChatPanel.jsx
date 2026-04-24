@@ -15,14 +15,43 @@ function renderInline(text) {
   const parts = [];
   const pattern = /`([^`]+)`/g;
   let lastIndex = 0;
+  let key = 0;
   let match;
+
+  const pushWithBold = (chunk) => {
+    if (!chunk) {
+      return;
+    }
+
+    const boldPattern = /\*\*(.+?)\*\*/g;
+    let chunkLastIndex = 0;
+    let boldMatch;
+
+    while ((boldMatch = boldPattern.exec(chunk)) !== null) {
+      if (boldMatch.index > chunkLastIndex) {
+        parts.push(chunk.slice(chunkLastIndex, boldMatch.index));
+      }
+
+      parts.push(
+        <strong key={`bold-${key++}`}>
+          {boldMatch[1]}
+        </strong>
+      );
+      chunkLastIndex = boldPattern.lastIndex;
+    }
+
+    if (chunkLastIndex < chunk.length) {
+      parts.push(chunk.slice(chunkLastIndex));
+    }
+  };
 
   while ((match = pattern.exec(text)) !== null) {
     if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index));
+      pushWithBold(text.slice(lastIndex, match.index));
     }
+
     parts.push(
-      <code key={`${match.index}-${match[1]}`} style={styles.inlineCode}>
+      <code key={`code-${key++}`} style={styles.inlineCode}>
         {match[1]}
       </code>
     );
@@ -30,7 +59,7 @@ function renderInline(text) {
   }
 
   if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex));
+    pushWithBold(text.slice(lastIndex));
   }
 
   return parts;
@@ -149,7 +178,7 @@ function renderAssistantContent(text) {
     flushQuotes();
     nodes.push(
       <p key={`paragraph-${index}`} style={styles.paragraph}>
-        {renderInline(trimmed.replace(/\*\*/g, ''))}
+        {renderInline(trimmed)}
       </p>
     );
   });

@@ -116,6 +116,18 @@ export async function endMeeting(payload) {
   return response.json();
 }
 
+export async function warmupBackend() {
+  const response = await fetch(`${API_BASE}/health`, {
+    method: 'GET',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Backend warm-up failed (${response.status})`);
+  }
+
+  return response.json();
+}
+
 export async function streamChat(payload, onToken) {
   const response = await fetch(`${API_BASE}/chat`, {
     method: 'POST',

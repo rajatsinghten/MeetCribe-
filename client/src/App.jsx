@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './styles.css';
 
 import Navbar from './components/Navbar';
@@ -6,7 +6,7 @@ import TranscriptPanel from './components/TranscriptPanel';
 import LiveSuggestionsPanel from './components/LiveSuggestionsPanel';
 import ChatPanel from './components/ChatPanel';
 import ApiKeyModal from './components/ApiKeyModal';
-import { exportSessionAsJson } from './api';
+import { exportSessionAsJson, warmupBackend } from './api';
 import {
   formatSessionTimestamp,
   loadSessionSettings,
@@ -16,6 +16,8 @@ import {
 export default function App() {
   const transcriptPanelRef = useRef(null);
   const nextSuggestionBatchIdRef = useRef(1);
+  const startupWarmupSentRef = useRef(false);
+  const lastApiKeyRef = useRef('');
 
   const [settings, setSettings] = useState(loadSessionSettings);
   const [pendingMessage, setPendingMessage] = useState(null);
@@ -28,6 +30,25 @@ export default function App() {
   const [refreshRequest, setRefreshRequest] = useState({ token: 0, source: 'manual' });
 
   const hasApiKey = settings.apiKey.trim().length > 0;
+
+  useEffect(() => {
+    const currentApiKey = settings.apiKey.trim();
+    if (currentApiKey !== lastApiKeyRef.current) {
+      startupWarmupSentRef.current = false;
+      lastApiKeyRef.current = currentApiKey;
+    }
+  }, [settings.apiKey]);
+
+  useEffect(() => {
+    if (!hasApiKey || startupWarmupSentRef.current) {
+      return;
+    }
+
+    startupWarmupSentRef.current = true;
+    void warmupBackend().catch(() => {
+      startupWarmupSentRef.current = false;
+    });
+  }, [hasApiKey, settings.apiKey]);
 
   const handleSaveSettings = useCallback((nextSettings) => {
     const normalized = saveSessionSettings(nextSettings);

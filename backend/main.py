@@ -53,6 +53,11 @@ async def root():
     }
 
 
+@app.get("/api/health", tags=["health"])
+async def api_health():
+    return {"status": "ok"}
+
+
 @app.get("/api/docs", include_in_schema=False)
 async def api_docs_redirect():
     return RedirectResponse(url="/docs", status_code=307)
