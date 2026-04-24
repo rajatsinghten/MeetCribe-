@@ -1,4 +1,5 @@
-const API_BASE = '/api';
+const RAW_API_BASE = (import.meta.env.VITE_API_BASE || '/api').trim();
+const API_BASE = RAW_API_BASE.endsWith('/') ? RAW_API_BASE.slice(0, -1) : RAW_API_BASE;
 const SETTINGS_STORAGE_KEY = 'twinmind_session_settings';
 
 function getAudioExtensionFromMimeType(mimeType) {
