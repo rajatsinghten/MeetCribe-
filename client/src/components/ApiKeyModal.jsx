@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const BRAND_LOGO_SRC = '/meetcribelogo.avif';
+const BRAND_LOGO_SRC = '/logo.png';
 
 export default function ApiKeyModal({ onSave }) {
   const [key, setKey] = useState('');

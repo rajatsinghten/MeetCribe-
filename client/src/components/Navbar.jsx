@@ -2,15 +2,7 @@ import React, { useState } from 'react';
 
 import { DEFAULT_SESSION_SETTINGS, normalizeSessionSettings } from '../sessionSettings';
 
-const BRAND_LOGO_SRC = '/meetcribelogo.avif';
-
-const HamburgerIcon = () => (
-  <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
-    <rect y="0" width="20" height="2" rx="1" fill="currentColor" />
-    <rect y="7" width="20" height="2" rx="1" fill="currentColor" />
-    <rect y="14" width="20" height="2" rx="1" fill="currentColor" />
-  </svg>
-);
+const BRAND_LOGO_SRC = '/logo.png';
 
 const SearchIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
@@ -124,10 +116,6 @@ export default function Navbar({ settings, onSaveSettings, onExportSession, canE
   return (
     <>
       <nav style={styles.navbar}>
-        <button style={styles.hamburger} title="Menu">
-          <HamburgerIcon />
-        </button>
-
         <div style={styles.searchWrap}>
           <input
             style={styles.searchInput}
@@ -171,7 +159,6 @@ export default function Navbar({ settings, onSaveSettings, onExportSession, canE
             <SettingsIcon />
             <span>Settings</span>
           </button>
-          <div style={styles.divider} />
           <Logo />
         </div>
       </nav>
@@ -192,24 +179,14 @@ const styles = {
     background: 'var(--surface)',
     borderBottom: '1px solid var(--border)',
     minHeight: 60,
-    padding: '0 28px',
+    padding: '0 24px',
     display: 'flex',
     alignItems: 'center',
-    gap: 20,
+    gap: 16,
     position: 'sticky',
     top: 0,
     zIndex: 100,
     flexWrap: 'wrap',
-  },
-  hamburger: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    color: 'var(--nav-text)',
-    display: 'flex',
-    alignItems: 'center',
-    padding: 4,
-    flexShrink: 0,
   },
   searchWrap: {
     position: 'relative',
@@ -253,7 +230,7 @@ const styles = {
   actions: {
     display: 'flex',
     alignItems: 'center',
-    gap: 4,
+    gap: 10,
     flexWrap: 'wrap',
     justifyContent: 'flex-end',
   },
@@ -272,21 +249,16 @@ const styles = {
     cursor: 'pointer',
     whiteSpace: 'nowrap',
   },
-  divider: {
-    width: 1,
-    height: 22,
-    background: 'var(--border)',
-    margin: '0 8px',
-  },
   logo: {
     display: 'flex',
     alignItems: 'center',
     flexShrink: 0,
     userSelect: 'none',
+    marginLeft: 2,
   },
   logoImage: {
     display: 'block',
-    width: 164,
+    width: 152,
     height: 34,
     objectFit: 'contain',
   },
