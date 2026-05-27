@@ -1,6 +1,14 @@
 # MeetScribe Live Meeting Copilot
 
-MeetScribe is a real-time meeting assistant with three live workflows: transcription, context-aware suggestions, and streaming chat. It uses a React + Vite frontend and a FastAPI backend connected to Groq models.
+MeetScribe is a real-time meeting copilot that listens to a live conversation, turns speech into text, surfaces useful next-step suggestions, and lets you ask follow-up questions without losing the thread. It is built for meetings where you want quick context, not a full transcript review later.
+
+The project is split into three practical layers:
+
+- Transcription: capture audio in short rolling segments and convert each chunk into text.
+- Suggestions: analyze the latest transcript context and generate three live suggestions that are grounded in the meeting.
+- Chat: expand any suggestion or ask a direct question to get a deeper answer from the current session context.
+
+The UI uses a React + Vite frontend and a FastAPI backend connected to Groq models.
 
 ## How to Use
 

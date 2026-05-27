@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 
 import { DEFAULT_SESSION_SETTINGS, normalizeSessionSettings } from '../sessionSettings';
 
+const BRAND_LOGO_SRC = '/meetcribelogo.avif';
+
 const HamburgerIcon = () => (
   <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
     <rect y="0" width="20" height="2" rx="1" fill="currentColor" />
@@ -37,7 +39,7 @@ const SettingsIcon = () => (
 
 const Logo = () => (
   <div style={styles.logo}>
-    <span>MeetScribe</span>
+    <img src={BRAND_LOGO_SRC} alt="MeetScribe" style={styles.logoImage} />
   </div>
 );
 
@@ -279,35 +281,14 @@ const styles = {
   logo: {
     display: 'flex',
     alignItems: 'center',
-    fontFamily: 'var(--font-head)',
-    fontSize: 17,
-    fontWeight: 700,
-    color: 'var(--nav-text)',
-    letterSpacing: '-0.3px',
     flexShrink: 0,
     userSelect: 'none',
-    gap: 1,
   },
-  neuron: {
-    display: 'inline-flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 2,
-    margin: '0 1px',
-  },
-  neuronDot: {
-    width: 5,
-    height: 5,
-    background: '#F28C28',
-    borderRadius: '50%',
+  logoImage: {
     display: 'block',
-  },
-  neuronLine: {
-    width: 2,
-    height: 8,
-    background: '#F28C28',
-    borderRadius: 1,
-    display: 'block',
+    width: 164,
+    height: 34,
+    objectFit: 'contain',
   },
   modalBackdrop: {
     position: 'fixed',

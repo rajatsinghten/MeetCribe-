@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+const BRAND_LOGO_SRC = '/meetcribelogo.avif';
+
 export default function ApiKeyModal({ onSave }) {
   const [key, setKey] = useState('');
 
@@ -14,10 +16,8 @@ export default function ApiKeyModal({ onSave }) {
     <div style={styles.backdrop}>
       <div style={styles.card}>
         <div style={styles.header}>
-          <div style={styles.iconCircle}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3y-3.5" />
-            </svg>
+          <div style={styles.logoFrame}>
+            <img src={BRAND_LOGO_SRC} alt="MeetScribe" style={styles.logoImage} />
           </div>
           <h2 style={styles.title}>Welcome to MeetScribe</h2>
           <p style={styles.subtitle}>Please enter your Groq API key to get started.</p>
@@ -86,17 +86,24 @@ const styles = {
   header: {
     marginBottom: 32,
   },
-  iconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: '50%',
-    background: 'var(--primary-muted)',
-    color: 'var(--primary)',
+  logoFrame: {
+    width: 112,
+    height: 112,
+    borderRadius: 28,
+    background: 'linear-gradient(180deg, rgba(255,255,255,0.96), rgba(243, 247, 250, 0.98))',
+    border: '1px solid rgba(15, 23, 42, 0.08)',
+    boxShadow: '0 18px 40px rgba(15, 23, 42, 0.08)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 18,
     marginInline: 'auto',
+  },
+  logoImage: {
+    width: 88,
+    height: 88,
+    objectFit: 'contain',
+    display: 'block',
   },
   title: {
     fontFamily: 'var(--font-head)',
