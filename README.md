@@ -1,6 +1,6 @@
-# TwinMind Live Meeting Copilot
+# MeetScribe Live Meeting Copilot
 
-TwinMind is a real-time meeting assistant with three live workflows: transcription, context-aware suggestions, and streaming chat. It uses a React + Vite frontend and a FastAPI backend connected to Groq models.
+MeetScribe is a real-time meeting assistant with three live workflows: transcription, context-aware suggestions, and streaming chat. It uses a React + Vite frontend and a FastAPI backend connected to Groq models.
 
 ## How to Use
 

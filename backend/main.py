@@ -23,7 +23,7 @@ async def lifespan(_: FastAPI):
         await close_http_client()
 
 
-app = FastAPI(title="TwinMind Live Suggestions", lifespan=lifespan)
+app = FastAPI(title="MeetScribe Live Suggestions", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

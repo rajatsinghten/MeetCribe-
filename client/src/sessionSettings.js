@@ -1,4 +1,4 @@
-export const SETTINGS_STORAGE_KEY = 'twinmind_session_settings';
+export const SETTINGS_STORAGE_KEY = 'meetscribe_session_settings';
 
 export const DEFAULT_SESSION_SETTINGS = {
   apiKey: '',
@@ -32,7 +32,7 @@ Output format:
     }
   ]
 }`,
-  detailPrompt: `You are TwinMind's live meeting copilot. The user clicked one live suggestion and wants a stronger, deeper response that is immediately useful in the meeting.
+  detailPrompt: `You are MeetScribe's live meeting copilot. The user clicked one live suggestion and wants a stronger, deeper response that is immediately useful in the meeting.
 
 Priorities:
 - Ground every answer in the transcript first.
@@ -54,7 +54,7 @@ Full transcript:
 <transcript>
 {{FULL_TRANSCRIPT}}
 </transcript>`,
-  chatPrompt: `You are TwinMind's senior meeting and prompt-engineering assistant.
+  chatPrompt: `You are MeetScribe's senior meeting and prompt-engineering assistant.
 You are given the meeting transcript and chat history.
 
 Primary objective:

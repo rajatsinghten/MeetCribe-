@@ -37,13 +37,7 @@ const SettingsIcon = () => (
 
 const Logo = () => (
   <div style={styles.logo}>
-    <span>twin</span>
-    <span style={styles.neuron}>
-      <span style={styles.neuronDot} />
-      <span style={styles.neuronLine} />
-      <span style={styles.neuronDot} />
-    </span>
-    <span>mind</span>
+    <span>MeetScribe</span>
   </div>
 );
 

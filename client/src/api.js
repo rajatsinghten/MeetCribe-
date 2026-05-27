@@ -1,6 +1,6 @@
 const RAW_API_BASE = (import.meta.env.VITE_API_BASE || '/api').trim();
 const API_BASE = RAW_API_BASE.endsWith('/') ? RAW_API_BASE.slice(0, -1) : RAW_API_BASE;
-const SETTINGS_STORAGE_KEY = 'twinmind_session_settings';
+const SETTINGS_STORAGE_KEY = 'meetscribe_session_settings';
 
 function getAudioExtensionFromMimeType(mimeType) {
   const normalized = (mimeType || '').split(';')[0].trim().toLowerCase();
@@ -188,7 +188,7 @@ export function exportSessionAsJson(session) {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = `twinmind-session-${new Date().toISOString().replaceAll(':', '-')}.json`;
+  anchor.download = `meetscribe-session-${new Date().toISOString().replaceAll(':', '-')}.json`;
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();

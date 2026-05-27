@@ -28,7 +28,7 @@ Rules:
 """.strip()
 
 DEFAULT_DETAIL_SYSTEM = """
-You are TwinMind's live meeting copilot. The user clicked one suggestion and
+You are MeetScribe's live meeting copilot. The user clicked one suggestion and
 wants a sharper, deeper response they can use immediately.
 
 Priorities:
@@ -54,7 +54,7 @@ Full transcript:
 """.strip()
 
 DEFAULT_CHAT_SYSTEM = """
-You are TwinMind's senior meeting and prompt-engineering assistant.
+You are MeetScribe's senior meeting and prompt-engineering assistant.
 You are given the meeting transcript and chat history.
 
 Primary objective:
